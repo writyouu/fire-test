@@ -1,0 +1,847 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>FIRE人格测试 | 单页面应用</title>
+  <style>
+    :root{
+      --bg:#F9F8F6;
+      --card:#ffffff;
+      --text:#1f2328;
+      --muted:#6b7280;
+      --shadow:0 10px 25px rgba(0,0,0,.06), 0 2px 8px rgba(0,0,0,.04);
+      --radius:16px;
+      --primary:#111827;
+      --primary2:#0f172a;
+      --line:#e5e7eb;
+      --accent:#111827;
+      --danger:#b91c1c;
+    }
+ 
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC","Hiragino Sans GB","Noto Sans CJK SC","Microsoft YaHei", Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+      background:var(--bg);
+      color:var(--text);
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+    }
+ 
+    .app{
+      max-width: 520px;
+      margin: 0 auto;
+      padding: 20px 16px 28px;
+      min-height: 100svh;
+      display:flex;
+      align-items:stretch;
+    }
+ 
+    .view{ display:none; width:100%; }
+    .view.active{ display:block; }
+ 
+    .card{
+      background:var(--card);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding: 18px 16px;
+    }
+ 
+    .stack{ display:flex; flex-direction:column; gap:14px; }
+ 
+    .title{
+      font-size: 22px;
+      line-height:1.2;
+      letter-spacing:.2px;
+      margin: 0;
+    }
+    .subtitle{
+      margin: 0;
+      color:var(--muted);
+      line-height:1.55;
+      font-size: 14px;
+    }
+ 
+    .btn{
+      appearance:none;
+      border:none;
+      background:var(--primary);
+      color:white;
+      border-radius: 14px;
+      padding: 14px 16px;
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing:.2px;
+      cursor:pointer;
+      transition: transform .05s ease, opacity .15s ease, background .15s ease;
+      width:100%;
+    }
+    .btn:active{ transform: scale(.99); }
+    .btn.secondary{
+      background:transparent;
+      color:var(--primary2);
+      border:1px solid var(--line);
+      font-weight:600;
+    }
+    .btn:disabled{ opacity:.45; cursor:not-allowed; }
+ 
+    .topbar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+    }
+ 
+    .progressWrap{
+      flex:1;
+      display:flex;
+      align-items:center;
+      gap:10px;
+      justify-content:flex-end;
+      min-width: 160px;
+    }
+    .progressText{
+      color:var(--muted);
+      font-size:13px;
+      white-space:nowrap;
+    }
+    .progressBar{
+      width: 100%;
+      height: 8px;
+      background: #f1f2f0;
+      border-radius: 999px;
+      overflow:hidden;
+      border: 1px solid rgba(0,0,0,.04);
+      max-width: 220px;
+    }
+    .progressFill{
+      height:100%;
+      width:0%;
+      background: var(--accent);
+      border-radius: 999px;
+      transition: width .25s ease;
+    }
+ 
+    .qTitle{
+      margin: 6px 0 4px;
+      font-size: 16px;
+      line-height:1.5;
+      font-weight: 700;
+    }
+    .options{
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      margin-top: 8px;
+    }
+    .opt{
+      text-align:left;
+      width:100%;
+      border-radius: 14px;
+      padding: 14px 14px;
+      border:1px solid var(--line);
+      background:#fff;
+      cursor:pointer;
+      font-size: 14px;
+      line-height:1.4;
+      transition: transform .05s ease, border-color .15s ease, background .15s ease;
+    }
+    .opt:active{ transform: scale(.99); }
+    .opt:hover{ border-color: rgba(17,24,39,.28); }
+ 
+    .quote{
+      font-size: 14px;
+      line-height:1.7;
+      color: var(--primary2);
+      padding: 14px 14px;
+      border-radius: 14px;
+      background: #fbfbfa;
+      border: 1px solid rgba(0,0,0,.05);
+    }
+ 
+    .loader{
+      height: 10px;
+      background: #f1f2f0;
+      border-radius: 999px;
+      overflow:hidden;
+      border: 1px solid rgba(0,0,0,.04);
+    }
+    .loader > i{
+      display:block;
+      height:100%;
+      width: 35%;
+      background: var(--accent);
+      border-radius: 999px;
+      animation: slide 1s ease-in-out infinite;
+    }
+    @keyframes slide{
+      0%{ transform: translateX(-120%); }
+      50%{ transform: translateX(120%); }
+      100%{ transform: translateX(300%); }
+    }
+ 
+    .sectionTitle{
+      font-size: 13px;
+      color: var(--muted);
+      letter-spacing:.2px;
+      margin: 0 0 8px;
+      font-weight: 700;
+    }
+ 
+    .personaRow{ display:flex; align-items:flex-start; gap:12px; }
+    .personaIcon{
+      width: 44px; height: 44px;
+      border-radius: 14px;
+      display:grid; place-items:center;
+      background: #111827; color:#fff;
+      font-size: 20px; flex: 0 0 auto;
+    }
+    .personaName{ font-size: 16px; font-weight: 800; margin:0; line-height:1.25; }
+    .personaTagline{ margin: 6px 0 0; color: var(--muted); font-size: 13px; line-height:1.6; }
+ 
+    .placeholder{
+      border: 1px dashed rgba(17,24,39,.25);
+      background: #fbfbfa;
+      border-radius: 14px;
+      padding: 14px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height:1.6;
+    }
+ 
+    .tinyNote{
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.6;
+      margin:0;
+    }
+ 
+    .footerSpace{ height: 10px; }
+ 
+    /* Radar */
+    .radarWrap{
+      border-radius: 14px;
+      background: #fbfbfa;
+      border: 1px solid rgba(0,0,0,.05);
+      padding: 12px;
+    }
+    canvas{ display:block; width:100% !important; height: 260px !important; }
+    .dimList{
+      margin: 10px 0 0;
+      padding-left: 16px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.6;
+    }
+ 
+    /* AI typing */
+    .aiBox{
+      border-radius: 14px;
+      background: #fbfbfa;
+      border: 1px solid rgba(0,0,0,.05);
+      padding: 14px;
+    }
+    .aiText{
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-size: 14px;
+      line-height: 1.75;
+      color: var(--primary2);
+      min-height: 84px;
+    }
+    .caret{
+      display:inline-block;
+      width: 8px;
+      height: 1.2em;
+      vertical-align: -0.15em;
+      margin-left: 2px;
+      background: rgba(17,24,39,.85);
+      animation: blink 1s step-end infinite;
+    }
+    @keyframes blink{
+      50%{ opacity: 0; }
+    }
+    .aiMeta{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      margin-top: 10px;
+    }
+    .aiStatus{
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .linkBtn{
+      appearance:none;
+      border:1px solid var(--line);
+      background: #fff;
+      color: var(--primary2);
+      border-radius: 999px;
+      padding: 8px 12px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor:pointer;
+    }
+    .linkBtn:active{ transform: scale(.99); }
+    .aiFail{
+      color: var(--danger);
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <!-- 欢迎页 -->
+    <section id="view-welcome" class="view active">
+      <div class="stack">
+        <div class="card stack">
+          <h1 class="title">你离财务自由还有多远？</h1>
+          <p class="subtitle">
+            用《有钱人和你想的不一样》×《金钱心理学》的智慧，测测你的FIRE体质。9道题，3分钟，生成你的专属《财富思维体检报告》。
+          </p>
+          <button id="btn-start" class="btn">开始测试</button>
+          <p class="tinyNote">提示：这是一个轻量自测小工具，结果用于启发思考，并不构成投资建议。</p>
+        </div>
+      </div>
+    </section>
+ 
+    <!-- 答题页 -->
+    <section id="view-quiz" class="view">
+      <div class="stack">
+        <div class="topbar">
+          <button id="btn-prev" class="btn secondary" style="width:auto; padding:10px 12px; border-radius:12px;">上一题</button>
+          <div class="progressWrap">
+            <span id="progress-text" class="progressText">1/9</span>
+            <div class="progressBar" aria-label="答题进度">
+              <div id="progress-fill" class="progressFill"></div>
+            </div>
+          </div>
+        </div>
+ 
+        <div class="card">
+          <div id="q-title" class="qTitle">题目加载中…</div>
+          <div id="options" class="options"></div>
+        </div>
+ 
+        <div class="footerSpace"></div>
+      </div>
+    </section>
+ 
+    <!-- 加载页 -->
+    <section id="view-loading" class="view">
+      <div class="stack">
+        <div class="card stack">
+          <p class="sectionTitle">正在生成你的《财富思维体检报告》</p>
+          <div id="loading-quote" class="quote">金句加载中…</div>
+          <div class="loader" aria-label="加载动画"><i></i></div>
+          <p class="tinyNote">大约需要 2 秒，请稍候。</p>
+        </div>
+      </div>
+    </section>
+ 
+    <!-- 结果页 -->
+    <section id="view-result" class="view">
+      <div class="stack">
+        <!-- 人设揭晓区 -->
+        <div class="card stack">
+          <p class="sectionTitle">人设揭晓</p>
+          <div class="personaRow">
+            <div id="persona-icon" class="personaIcon">🔥</div>
+            <div>
+              <p id="persona-name" class="personaName">你的FIRE人设</p>
+              <p id="persona-tagline" class="personaTagline">推荐语加载中…</p>
+              <p id="score-text" class="tinyNote" style="margin-top:10px;">总分：— / 36</p>
+            </div>
+          </div>
+        </div>
+ 
+        <!-- 雷达图放置区（Chart.js） -->
+        <div class="card">
+          <p class="sectionTitle">财富四维雷达图</p>
+          <div class="radarWrap">
+            <canvas id="radarChart" aria-label="财富四维雷达图" role="img"></canvas>
+          </div>
+          <ul class="dimList">
+            <li><b>储蓄力</b>：控制支出、积累本金的能力（高：储蓄率高；低：存不下钱）</li>
+            <li><b>投资力</b>：让钱生钱的知识和执行力（高：体系成熟；低：只放银行）</li>
+            <li><b>消费力</b>：对生活品质与体验的追求（高：更敢消费；低：消费欲低/更克制）</li>
+            <li><b>风险力</b>：面对波动与风险的承受能力（高：波动不慌；低：一点亏损就焦虑）</li>
+          </ul>
+          <p class="tinyNote" style="margin-top:10px;">
+            特别注意：四维不能孤立理解，尤其是“消费力”并非越高越好，需要结合整体人设解读。
+          </p>
+        </div>
+ 
+        <!-- 经典FIRE测算区 -->
+        <div class="card">
+          <p class="sectionTitle">经典 FIRE 测算（后续添加计算器）</p>
+          <div class="placeholder">占位：4% 法则 / 年支出 / 目标资产等计算器区域</div>
+        </div>
+ 
+        <!-- 心理学金句卡片区 -->
+        <div class="card">
+          <p class="sectionTitle">心理学金句</p>
+          <div id="result-quote" class="quote">“财富最重要的不是赚到多少，而是你如何对待它。”</div>
+        </div>
+ 
+        <!-- AI幻想路径区（DeepSeek） -->
+        <div class="card">
+          <p class="sectionTitle">AI 幻想路径</p>
+          <div class="aiBox">
+            <div id="ai-text" class="aiText">AI生成中<span class="caret" aria-hidden="true"></span></div>
+            <div class="aiMeta">
+              <div id="ai-status" class="aiStatus">正在连接AI…</div>
+              <button id="ai-retry" class="linkBtn" type="button" style="display:none;">重试</button>
+            </div>
+          </div>
+          <p class="tinyNote" style="margin-top:10px;">提示：该模块需要通过 Vercel 部署（或本地 dev server）才能调用后端代理接口。</p>
+        </div>
+ 
+        <!-- 分享按钮 -->
+        <div class="card">
+          <p class="sectionTitle">分享</p>
+          <div class="placeholder">占位：分享按钮（后续实现）</div>
+        </div>
+ 
+        <button id="btn-restart" class="btn secondary">重新测试</button>
+        <div class="footerSpace"></div>
+      </div>
+    </section>
+  </div>
+ 
+  <!-- 通过 CDN 引入 Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+ 
+  <script>
+    const QUESTIONS = [
+      {
+        id: 1,
+        title: "1）回想一下，在你成长的家庭中，金钱通常被看作是：",
+        options: [
+          { text: "必须紧紧握住的稀缺资源", score: 2 },
+          { text: "付出努力后应得的回报", score: 4 },
+          { text: "用来享受生活的好东西", score: 3 },
+          { text: "难以启齿、让人焦虑的话题", score: 1 },
+        ],
+      },
+      {
+        id: 2,
+        title: "2）假设你精心挑选的投资组合突然下跌了30%，你的第一反应更接近：",
+        options: [
+          { text: "立刻全部卖掉，保住剩下的", score: 1 },
+          { text: "关掉软件，假装没看到", score: 2 },
+          { text: "有点难受，但相信时间的力量，先看看情况", score: 4 },
+          { text: "兴奋起来，准备加仓", score: 3 },
+        ],
+      },
+      {
+        id: 3,
+        title: "3）你更认同以下哪种关于储蓄的看法？",
+        options: [
+          { text: "储蓄是收入减去消费后的“剩余”", score: 2 },
+          { text: "储蓄是为了未来某个特定大件目标的资金", score: 3 },
+          { text: "储蓄本身就是目的，为的是增加未来的自由", score: 4 },
+          { text: "享受当下最重要，不应为未来牺牲现在", score: 1 },
+        ],
+      },
+      {
+        id: 4,
+        title: "4）当你看到一个很好的投资机会，但需要向亲友借钱或说服他们一起时，你的感受是：",
+        options: [
+          { text: "觉得像在乞讨，很不舒服", score: 1 },
+          { text: "我会自己默默研究，等赚到钱再说", score: 3 },
+          { text: "我相信这是双赢，能自信清晰地向他们说明", score: 4 },
+          { text: "我害怕万一亏了无法交代，所以还是算了", score: 2 },
+        ],
+      },
+      {
+        id: 5,
+        title: "5）对你而言，积累财富最大的意义是什么？",
+        options: [
+          { text: "为获得时间的全面掌控，对不想做的事说“不”", score: 4 },
+          { text: "向父母、亲友证明自己", score: 1 },
+          { text: "给家人提供最高品质的生活和安全感", score: 3 },
+          { text: "能随意购买任何我想要的东西", score: 2 },
+        ],
+      },
+      {
+        id: 6,
+        title: "6）回顾你迄今为止最大的一笔财务成功，你内心深处更倾向于归因于：",
+        options: [
+          { text: "主要还是运气好", score: 2 },
+          { text: "运气和个人努力各占一半", score: 3 },
+          { text: "主要是我自己的能力和选择", score: 4 },
+          { text: "没想过这个问题", score: 1 },
+        ],
+      },
+      {
+        id: 7,
+        title: "7）如果有人问你“你的财务状况怎么样？”，你脑海中首先浮现的衡量标准是：",
+        options: [
+          { text: "我的月薪/年薪是多少", score: 1 },
+          { text: "我的存款余额还有多少", score: 2 },
+          { text: "我的资产加起来大概值多少钱", score: 4 },
+          { text: "我每月还完贷款后剩多少可支配的钱", score: 3 },
+        ],
+      },
+      {
+        id: 8,
+        title: "8）想象你突然获得一笔500万的意外之财。除了兴奋之外，第一反应中以下哪种情绪最强烈？",
+        options: [
+          { text: "隐隐的不安或罪恶感", score: 1 },
+          { text: "强烈的责任感，马上开始规划", score: 3 },
+          { text: "纯粹的喜悦，觉得自己值得拥有", score: 4 },
+          { text: "警惕和怀疑，担心是骗局或麻烦", score: 2 },
+        ],
+      },
+      {
+        id: 9,
+        title: "9）面对一个你完全看不懂但听说很赚钱的投资机会，你的态度最接近：",
+        options: [
+          { text: "不懂的东西坚决不碰", score: 4 },
+          { text: "会先拿一点小钱试水", score: 3 },
+          { text: "立刻开始拼命想搞懂它再决定", score: 2 },
+          { text: "既然别人能赚钱那我也行，投入可观资金", score: 1 },
+        ],
+      },
+    ];
+ 
+    const QUOTES = [
+      "“你对钱的态度，往往比你有多少钱更重要。”",
+      "“真正的富有，是你可以拒绝不想要的生活。”",
+      "“风险不是波动，风险是你在错误的游戏里下注。”",
+    ];
+ 
+    // 人设匹配规则 + 雷达数据 + 推荐语
+    const PERSONA_CONFIG = [
+      { min: 9,  max: 13, name: "悠然隐士", icon: "🧘", radar: [90, 30, 20, 15],
+        tagline: "《金钱心理学》中“足够感”的极致体现。你深谙“幸福感 = 拥有 - 期望”的公式，但需警惕过度保守让财富增长缓慢。" },
+      { min: 14, max: 17, name: "风险审计师", icon: "🔍", radar: [70, 40, 30, 10],
+        tagline: "《金钱心理学》中“安全边际”的忠实信徒。你的谨慎是财富的保护网，但可能需要区分“真正的风险”与“不适感”。" },
+      { min: 18, max: 21, name: "机会追逐者", icon: "🚀", radar: [30, 85, 60, 90],
+        tagline: "《金钱心理学》提醒你：乐观主义是增长的朋友，但毁灭的种子往往在繁荣时种下。建一个“无论如何都不动”的安全底仓吧。" },
+      { min: 22, max: 26, name: "财富建筑师", icon: "🏗️", radar: [70, 75, 50, 60],
+        tagline: "《有钱人》中“富人用净值衡量财富”的活样板。你的金钱蓝图是“富则兼济天下”，但别太追求完美系统而忘了生活烟火气。" },
+      { min: 27, max: 30, name: "生活冲浪者", icon: "🌊", radar: [20, 50, 90, 70],
+        tagline: "你拥有《金钱心理学》中最宝贵的品质——能感受到“足够”。你需要的不是改变性格，而是一个自动导航的财务系统来兜底。" },
+      { min: 31, max: 34, name: "隐世智者", icon: "🦉", radar: [80, 65, 25, 40],
+        tagline: "你是身边人的财务灯塔，但你的风险在于过度自信。记住《金钱心理学》的忠告：当每个人都相信一件事时，保持怀疑。" },
+      { min: 35, max: 36, name: "财富炼金术师", icon: "🔮", radar: [75, 90, 55, 80],
+        tagline: "你是《有钱人》中“用净值思考”的成熟版。最大的敌人是路径依赖——过去让你成功的方法，未必适用于未来。" },
+    ];
+ 
+    function pickRandomQuote(){
+      return QUOTES[Math.floor(Math.random() * QUOTES.length)];
+    }
+ 
+    function clamp(n, min, max){ return Math.max(min, Math.min(max, n)); }
+ 
+    function matchPersona(totalScore){
+      const s = clamp(totalScore, 9, 36);
+      const hit = PERSONA_CONFIG.find(p => s >= p.min && s <= p.max);
+      return hit || PERSONA_CONFIG[0];
+    }
+ 
+    // --- 视图切换 ---
+    const views = {
+      welcome: document.getElementById("view-welcome"),
+      quiz: document.getElementById("view-quiz"),
+      loading: document.getElementById("view-loading"),
+      result: document.getElementById("view-result"),
+    };
+    function showView(name){
+      Object.keys(views).forEach(k => views[k].classList.remove("active"));
+      views[name].classList.add("active");
+      window.scrollTo({ top: 0, behavior: "instant" });
+    }
+ 
+    // --- 状态 ---
+    let idx = 0;
+    let answers = [];
+    let radarChartInstance = null;
+    let aiAbortController = null;
+    let aiTypingTimer = null;
+ 
+    // --- 元素 ---
+    const btnStart = document.getElementById("btn-start");
+    const btnPrev = document.getElementById("btn-prev");
+    const qTitle = document.getElementById("q-title");
+    const optionsEl = document.getElementById("options");
+    const progressText = document.getElementById("progress-text");
+    const progressFill = document.getElementById("progress-fill");
+ 
+    const loadingQuoteEl = document.getElementById("loading-quote");
+ 
+    const personaIconEl = document.getElementById("persona-icon");
+    const personaNameEl = document.getElementById("persona-name");
+    const personaTaglineEl = document.getElementById("persona-tagline");
+    const scoreTextEl = document.getElementById("score-text");
+    const resultQuoteEl = document.getElementById("result-quote");
+ 
+    const aiTextEl = document.getElementById("ai-text");
+    const aiStatusEl = document.getElementById("ai-status");
+    const aiRetryBtn = document.getElementById("ai-retry");
+ 
+    const btnRestart = document.getElementById("btn-restart");
+ 
+    function setProgress(){
+      const total = QUESTIONS.length;
+      const current = clamp(idx + 1, 1, total);
+      progressText.textContent = `${current}/${total}`;
+      progressFill.style.width = `${(current / total) * 100}%`;
+      btnPrev.disabled = (idx === 0);
+    }
+ 
+    function renderQuestion(){
+      const q = QUESTIONS[idx];
+      if(!q) return;
+ 
+      setProgress();
+      qTitle.textContent = q.title;
+ 
+      optionsEl.innerHTML = "";
+      q.options.forEach((opt, optIndex) => {
+        const btn = document.createElement("button");
+        btn.className = "opt";
+        btn.type = "button";
+        btn.innerHTML = `<span>${opt.text}</span>`;
+        btn.addEventListener("click", () => chooseOption(optIndex));
+        optionsEl.appendChild(btn);
+      });
+    }
+ 
+    function chooseOption(optIndex){
+      const q = QUESTIONS[idx];
+      const opt = q.options[optIndex];
+ 
+      answers[idx] = {
+        questionId: q.id,
+        optionIndex: optIndex,
+        score: Number(opt.score ?? 0),
+      };
+ 
+      if(idx < QUESTIONS.length - 1){
+        idx += 1;
+        renderQuestion();
+      }else{
+        goLoadingThenResult();
+      }
+    }
+ 
+    function goPrev(){
+      if(idx === 0) return;
+      idx -= 1;
+      renderQuestion();
+    }
+ 
+    function getTotalScore(){
+      return answers.filter(Boolean).reduce((sum, a) => sum + (a.score || 0), 0);
+    }
+ 
+    function renderRadar(persona){
+      const canvas = document.getElementById("radarChart");
+      if(!canvas) return;
+ 
+      if(radarChartInstance){
+        radarChartInstance.destroy();
+        radarChartInstance = null;
+      }
+ 
+      const ctx = canvas.getContext("2d");
+      radarChartInstance = new Chart(ctx, {
+        type: "radar",
+        data: {
+          labels: ["储蓄力", "投资力", "消费力", "风险力"],
+          datasets: [{
+            label: "你的财富四维图",
+            data: persona.radar,
+            backgroundColor: "rgba(17, 24, 39, 0.14)",
+            borderColor: "rgba(17, 24, 39, 0.9)",
+            borderWidth: 2,
+            pointBackgroundColor: "rgba(17, 24, 39, 0.9)",
+            pointBorderColor: "#fff",
+            pointHoverBackgroundColor: "#fff",
+            pointHoverBorderColor: "rgba(17, 24, 39, 0.9)",
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: (ctx) => ` ${ctx.label}: ${ctx.formattedValue}`
+              }
+            }
+          },
+          scales: {
+            r: {
+              beginAtZero: true,
+              max: 100,
+              ticks: {
+                stepSize: 20,
+                showLabelBackdrop: false,
+                color: "rgba(107,114,128,.9)"
+              },
+              grid: { color: "rgba(17,24,39,.08)" },
+              angleLines: { color: "rgba(17,24,39,.08)" },
+              pointLabels: { color: "rgba(17,24,39,.85)", font: { size: 12, weight: 700 } }
+            }
+          }
+        }
+      });
+    }
+ 
+    function resetAiBox(){
+      if(aiTypingTimer){
+        clearTimeout(aiTypingTimer);
+        aiTypingTimer = null;
+      }
+      if(aiAbortController){
+        aiAbortController.abort();
+        aiAbortController = null;
+      }
+      aiRetryBtn.style.display = "none";
+      aiStatusEl.classList.remove("aiFail");
+      aiTextEl.innerHTML = `AI生成中<span class="caret" aria-hidden="true"></span>`;
+      aiStatusEl.textContent = "正在连接AI…";
+    }
+ 
+    function typewriter(el, text, speedMs){
+      if(aiTypingTimer){
+        clearTimeout(aiTypingTimer);
+        aiTypingTimer = null;
+      }
+      const speed = Number(speedMs ?? 18);
+      let i = 0;
+      function tick(){
+        const shown = text.slice(0, i);
+        el.innerHTML = `${escapeHtml(shown)}<span class="caret" aria-hidden="true"></span>`;
+        i++;
+        if(i <= text.length){
+          aiTypingTimer = setTimeout(tick, speed);
+        }else{
+          el.textContent = text; // 结束后移除光标，保证复制友好
+          aiTypingTimer = null;
+        }
+      }
+      tick();
+    }
+ 
+    function escapeHtml(str){
+      return String(str)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#39;");
+    }
+ 
+    async function generateAiFantasyPath(persona){
+      resetAiBox();
+      aiAbortController = new AbortController();
+ 
+      try{
+        aiStatusEl.textContent = "AI生成中…";
+ 
+        const res = await fetch("/api/ai-fantasy-path", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            personaName: persona.name,
+            personaIcon: persona.icon,
+            radar: persona.radar,
+            score: getTotalScore(),
+          }),
+          signal: aiAbortController.signal,
+        });
+ 
+        if(!res.ok){
+          throw new Error("bad_status_" + res.status);
+        }
+ 
+        const data = await res.json();
+        const text = String(data?.text ?? "").trim();
+        if(!text){
+          throw new Error("empty_text");
+        }
+ 
+        aiStatusEl.textContent = "生成完成";
+        typewriter(aiTextEl, text, 18);
+      }catch(err){
+        if(err?.name === "AbortError"){
+          return; // 被重开测试/重试取消
+        }
+        aiTextEl.textContent = "AI生成失败，请稍后重试";
+        aiStatusEl.textContent = "生成失败";
+        aiStatusEl.classList.add("aiFail");
+        aiRetryBtn.style.display = "inline-block";
+      }finally{
+        aiAbortController = null;
+      }
+    }
+ 
+    function goLoadingThenResult(){
+      showView("loading");
+      loadingQuoteEl.textContent = pickRandomQuote();
+ 
+      window.setTimeout(() => {
+        const totalScore = getTotalScore();
+        const persona = matchPersona(totalScore);
+ 
+        personaIconEl.textContent = persona.icon;
+        personaNameEl.textContent = persona.name;
+        personaTaglineEl.textContent = persona.tagline;
+        scoreTextEl.textContent = `总分：${totalScore} / 36`;
+ 
+        resultQuoteEl.textContent = pickRandomQuote();
+ 
+        showView("result");
+        renderRadar(persona);
+        generateAiFantasyPath(persona);
+      }, 2000);
+    }
+ 
+    function startTest(){
+      idx = 0;
+      answers = new Array(QUESTIONS.length).fill(null);
+ 
+      if(radarChartInstance){
+        radarChartInstance.destroy();
+        radarChartInstance = null;
+      }
+ 
+      resetAiBox();
+ 
+      showView("quiz");
+      renderQuestion();
+    }
+ 
+    function restart(){
+      showView("welcome");
+      idx = 0;
+      answers = [];
+ 
+      if(radarChartInstance){
+        radarChartInstance.destroy();
+        radarChartInstance = null;
+      }
+ 
+      resetAiBox();
+    }
+ 
+    btnStart.addEventListener("click", startTest);
+    btnPrev.addEventListener("click", goPrev);
+    btnRestart.addEventListener("click", restart);
+    aiRetryBtn.addEventListener("click", () => {
+      const totalScore = getTotalScore();
+      const persona = matchPersona(totalScore);
+      generateAiFantasyPath(persona);
+    });
+ 
+    showView("welcome");
+  </script>
+</body>
+</html>
