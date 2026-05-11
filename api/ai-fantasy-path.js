@@ -9,6 +9,8 @@
  * - 前端会 POST /api/ai-fantasy-path
  * - 返回格式：{ text: "..." }
  */
+export const config = { runtime: "nodejs" };
+
 export default async function handler(req, res) {
   // 允许预检请求（可选，但对某些本地调试场景更友好）
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
@@ -24,11 +26,12 @@ export default async function handler(req, res) {
   }
 
   try {
-    const apiKey = process.env.sk-0aff1ef583de4f0c949965da6e1f1174;
+    const apiKey = process.env.DEEPSEEK_API_KEY;
     if (!apiKey) {
       return res.status(500).json({ error: "Missing DEEPSEEK_API_KEY" });
     }
 
+    // Vercel 通常会帮你解析 JSON；但也兼容字符串形式
     const body = typeof req.body === "string" ? JSON.parse(req.body || "{}") : (req.body || {});
     const personaName = String(body.personaName || "").trim();
     const personaIcon = String(body.personaIcon || "").trim();
@@ -91,6 +94,8 @@ export default async function handler(req, res) {
 
     return res.status(200).json({ text: cleaned });
   } catch (err) {
+    // 让 Vercel 日志里能看到真实报错（比如导出方式、fetch、JSON 等）
+    console.error("ai-fantasy-path error:", err);
     return res.status(500).json({ error: "Server error", message: String(err?.message || err) });
   }
 }
