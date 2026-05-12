@@ -343,65 +343,62 @@
     <!-- 结果页 -->
     <section id="view-result" class="view">
       <div class="stack">
-        <!-- 人设揭晓区 -->
-        <div class="card stack">
-          <p class="sectionTitle">人设揭晓</p>
-          <div class="personaRow">
-            <div id="persona-icon" class="personaIcon">🔥</div>
-            <div>
-              <p id="persona-name" class="personaName">你的FIRE人设</p>
-              <p id="persona-tagline" class="personaTagline">推荐语加载中…</p>
-              <p id="score-text" class="tinyNote" style="margin-top:10px;">总分：— / 36</p>
+        <!-- 分享卡片截图区域（将被 html2canvas 捕获） -->
+        <div id="share-capture" class="stack">
+          <!-- 人设揭晓区 -->
+          <div class="card stack">
+            <p class="sectionTitle">人设揭晓</p>
+            <div class="personaRow">
+              <div id="persona-icon" class="personaIcon">🔥</div>
+              <div>
+                <p id="persona-name" class="personaName">你的FIRE人设</p>
+                <p id="persona-tagline" class="personaTagline">推荐语加载中…</p>
+                <p id="score-text" class="tinyNote" style="margin-top:10px;">总分：— / 36</p>
+              </div>
+            </div>
+          </div>
+  
+          <!-- 雷达图放置区（Chart.js） -->
+          <div class="card">
+            <p class="sectionTitle">财富四维雷达图</p>
+            <div class="radarWrap">
+              <canvas id="radarChart" aria-label="财富四维雷达图" role="img"></canvas>
+            </div>
+            <ul class="dimList">
+              <li><b>储蓄力</b>：控制支出、积累本金的能力（高：储蓄率高；低：存不下钱）</li>
+              <li><b>投资力</b>：让钱生钱的知识和执行力（高：体系成熟；低：只放银行）</li>
+              <li><b>消费力</b>：对生活品质与体验的追求（高：更敢消费；低：消费欲低/更克制）</li>
+              <li><b>风险力</b>：面对波动与风险的承受能力（高：波动不慌；低：一点亏损就焦虑）</li>
+            </ul>
+            <p class="tinyNote" style="margin-top:10px;">
+              特别注意：四维不能孤立理解，尤其是“消费力”并非越高越好，需要结合整体人设解读。
+            </p>
+          </div>
+  
+          <!-- 心理学金句卡片区 -->
+          <div class="card">
+            <p class="sectionTitle">心理学金句</p>
+            <div id="result-quote" class="quote">“财富最重要的不是赚到多少，而是你如何对待它。”</div>
+          </div>
+  
+          <!-- AI幻想路径区（DeepSeek） -->
+          <div class="card">
+            <p class="sectionTitle">AI 幻想路径</p>
+            <div class="aiBox">
+              <div id="ai-text" class="aiText">AI生成中<span class="caret" aria-hidden="true"></span></div>
+              <div class="aiMeta">
+                <div id="ai-status" class="aiStatus">正在连接AI…</div>
+                <button id="ai-retry" class="linkBtn" type="button" style="display:none;">重试</button>
+              </div>
             </div>
           </div>
         </div>
  
-        <!-- 雷达图放置区（Chart.js） -->
-        <div class="card">
-          <p class="sectionTitle">财富四维雷达图</p>
-          <div class="radarWrap">
-            <canvas id="radarChart" aria-label="财富四维雷达图" role="img"></canvas>
-          </div>
-          <ul class="dimList">
-            <li><b>储蓄力</b>：控制支出、积累本金的能力（高：储蓄率高；低：存不下钱）</li>
-            <li><b>投资力</b>：让钱生钱的知识和执行力（高：体系成熟；低：只放银行）</li>
-            <li><b>消费力</b>：对生活品质与体验的追求（高：更敢消费；低：消费欲低/更克制）</li>
-            <li><b>风险力</b>：面对波动与风险的承受能力（高：波动不慌；低：一点亏损就焦虑）</li>
-          </ul>
-          <p class="tinyNote" style="margin-top:10px;">
-            特别注意：四维不能孤立理解，尤其是“消费力”并非越高越好，需要结合整体人设解读。
-          </p>
-        </div>
- 
-        <!-- 经典FIRE测算区 -->
-        <div class="card">
-          <p class="sectionTitle">经典 FIRE 测算（后续添加计算器）</p>
-          <div class="placeholder">占位：4% 法则 / 年支出 / 目标资产等计算器区域</div>
-        </div>
- 
-        <!-- 心理学金句卡片区 -->
-        <div class="card">
-          <p class="sectionTitle">心理学金句</p>
-          <div id="result-quote" class="quote">“财富最重要的不是赚到多少，而是你如何对待它。”</div>
-        </div>
- 
-        <!-- AI幻想路径区（DeepSeek） -->
-        <div class="card">
-          <p class="sectionTitle">AI 幻想路径</p>
-          <div class="aiBox">
-            <div id="ai-text" class="aiText">AI生成中<span class="caret" aria-hidden="true"></span></div>
-            <div class="aiMeta">
-              <div id="ai-status" class="aiStatus">正在连接AI…</div>
-              <button id="ai-retry" class="linkBtn" type="button" style="display:none;">重试</button>
-            </div>
-          </div>
-          <p class="tinyNote" style="margin-top:10px;">提示：该模块需要通过 Vercel 部署（或本地 dev server）才能调用后端代理接口。</p>
-        </div>
- 
-        <!-- 分享按钮 -->
+        <!-- 分享按钮（不截图） -->
         <div class="card">
           <p class="sectionTitle">分享</p>
-          <div class="placeholder">占位：分享按钮（后续实现）</div>
+          <button id="btn-share" class="btn" type="button">保存图片并分享</button>
+          <p id="share-status" class="tinyNote" style="margin-top:10px;">将生成 750×1334 的分享卡片图片并自动下载。</p>
         </div>
  
         <button id="btn-restart" class="btn secondary">重新测试</button>
@@ -412,8 +409,18 @@
  
   <!-- 通过 CDN 引入 Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <!-- 通过 CDN 引入 html2canvas -->
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
  
   <script>
+    // === 可选配置 ===
+    // 如果你把前端部署在 GitHub Pages，但后端 Vercel Function 在另一个域名，
+    // 把 apiBase 改成你的 Vercel 项目域名，例如：
+    // window.APP_CONFIG = { apiBase: "https://your-project.vercel.app" };
+    //
+    // 如果前后端都部署在同一个 Vercel 项目里，请保持 apiBase 为空字符串即可。
+    window.APP_CONFIG = window.APP_CONFIG || { apiBase: "" };
+
     const QUESTIONS = [
       {
         id: 1,
@@ -582,6 +589,8 @@
     const aiTextEl = document.getElementById("ai-text");
     const aiStatusEl = document.getElementById("ai-status");
     const aiRetryBtn = document.getElementById("ai-retry");
+    const btnShare = document.getElementById("btn-share");
+    const shareStatusEl = document.getElementById("share-status");
  
     const btnRestart = document.getElementById("btn-restart");
  
@@ -746,7 +755,9 @@
       try{
         aiStatusEl.textContent = "AI生成中…";
  
-        const res = await fetch("/api/ai-fantasy-path", {
+        const apiBase = String(window.APP_CONFIG?.apiBase || "").replace(/\/+$/,"");
+        const url = `${apiBase}/api/ai-fantasy-path`;
+        const res = await fetch(url, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -840,6 +851,62 @@
       const persona = matchPersona(totalScore);
       generateAiFantasyPath(persona);
     });
+
+    async function generateShareCard(){
+      if (!window.html2canvas) {
+        if (shareStatusEl) shareStatusEl.textContent = "html2canvas 未加载，请稍后重试";
+        return;
+      }
+      const target = document.getElementById("share-capture");
+      if (!target) return;
+
+      const oldText = btnShare ? btnShare.textContent : "";
+      if (btnShare) { btnShare.disabled = true; btnShare.textContent = "生成中…"; }
+      if (shareStatusEl) shareStatusEl.textContent = "正在生成图片…";
+
+      try{
+        // 先渲染为高分辨率，再按 750×1334 进行适配绘制
+        const shotCanvas = await html2canvas(target, {
+          backgroundColor: "#F9F8F6",
+          scale: 2,
+          useCORS: true,
+        });
+
+        const OUT_W = 750;
+        const OUT_H = 1334;
+        const out = document.createElement("canvas");
+        out.width = OUT_W;
+        out.height = OUT_H;
+        const ctx = out.getContext("2d");
+        ctx.fillStyle = "#F9F8F6";
+        ctx.fillRect(0, 0, OUT_W, OUT_H);
+
+        const scale = Math.min(OUT_W / shotCanvas.width, OUT_H / shotCanvas.height);
+        const drawW = Math.round(shotCanvas.width * scale);
+        const drawH = Math.round(shotCanvas.height * scale);
+        const dx = Math.round((OUT_W - drawW) / 2);
+        const dy = Math.round((OUT_H - drawH) / 2);
+        ctx.drawImage(shotCanvas, dx, dy, drawW, drawH);
+
+        const personaName = (document.getElementById("persona-name")?.textContent || "FIRE人格测试").trim();
+        const filename = `FIRE人格测试_${personaName}.png`;
+
+        const a = document.createElement("a");
+        a.href = out.toDataURL("image/png");
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+
+        if (shareStatusEl) shareStatusEl.textContent = "已生成并开始下载。你可以把图片发给朋友或朋友圈。";
+      }catch(err){
+        if (shareStatusEl) shareStatusEl.textContent = "生成失败，请稍后重试";
+      }finally{
+        if (btnShare) { btnShare.disabled = false; btnShare.textContent = oldText || "保存图片并分享"; }
+      }
+    }
+
+    btnShare?.addEventListener("click", generateShareCard);
  
     showView("welcome");
   </script>
